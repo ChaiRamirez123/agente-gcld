@@ -1,0 +1,416 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Agente GCLD — Gatitos contra la Desigualdad</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0c0c10; --surface: #13131f; --surface2: #1a1a28;
+    --border: #1e1e30; --border2: #2a2a40;
+    --accent: #ff5e3a; --accent-dim: #ff5e3a18; --accent-border: #ff5e3a30;
+    --text: #d8d8e8; --text-dim: #666680; --text-faint: #2a2a40;
+    --green: #4ade80; --notion: #8888ee; --notion-dim: #2a2a5a; --notion-border: #3a3a7a;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body { height: 100%; background: var(--bg); font-family: 'DM Sans', sans-serif; color: var(--text); }
+  .app { display: flex; flex-direction: column; height: 100vh; max-width: 680px; margin: 0 auto; }
+  .header { display: flex; align-items: center; gap: 12px; padding: 14px 20px; border-bottom: 0.5px solid var(--border); flex-shrink: 0; }
+  .logo { width: 36px; height: 36px; border-radius: 10px; background: var(--accent-dim); border: 0.5px solid var(--accent-border); display: flex; align-items: center; justify-content: center; font-size: 18px; flex-shrink: 0; }
+  .header-text .title { font-size: 14px; font-weight: 600; color: #f0f0f8; }
+  .header-text .subtitle { font-size: 11px; color: var(--green); margin-top: 1px; }
+  .messages { flex: 1; overflow-y: auto; padding: 20px 20px 10px; display: flex; flex-direction: column; gap: 16px; scroll-behavior: smooth; }
+  .messages::-webkit-scrollbar { width: 3px; }
+  .messages::-webkit-scrollbar-thumb { background: var(--border2); border-radius: 2px; }
+  .msg-wrap { display: flex; flex-direction: column; gap: 4px; }
+  .msg-wrap.user { align-items: flex-end; }
+  .msg-wrap.agent { align-items: flex-start; }
+  .msg-label { font-size: 10px; color: var(--text-faint); text-transform: uppercase; letter-spacing: .08em; padding: 0 4px; }
+  .bubble { max-width: 85%; padding: 12px 16px; line-height: 1.7; font-size: 14px; color: var(--text); white-space: pre-wrap; word-break: break-word; }
+  .bubble.user { background: var(--accent-dim); border: 0.5px solid var(--accent-border); border-radius: 14px 14px 4px 14px; }
+  .bubble.agent { background: var(--surface); border: 0.5px solid var(--border); border-radius: 4px 14px 14px 14px; }
+  .bubble strong { color: #f0f0f8; font-weight: 500; }
+  .bubble img.attached { max-width: 200px; border-radius: 8px; margin-bottom: 8px; display: block; border: 0.5px solid var(--border2); }
+  .json-card { max-width: 85%; background: var(--surface); border: 0.5px solid var(--notion-border); border-radius: 12px; padding: 14px 16px; display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+  .json-card-label { font-size: 13px; color: #f0f0f8; font-weight: 500; margin-bottom: 3px; }
+  .json-card-sub { font-size: 11px; color: var(--text-dim); }
+  .btn-publish { background: var(--notion-dim); color: var(--notion); border: 0.5px solid var(--notion-border); border-radius: 8px; padding: 9px 16px; font-size: 12px; font-family: 'DM Sans', sans-serif; cursor: pointer; white-space: nowrap; flex-shrink: 0; transition: background .15s; }
+  .btn-publish:hover { background: #35356a; }
+  .btn-publish:disabled { opacity: .5; cursor: default; }
+  .typing { display: flex; gap: 5px; padding: 14px 18px; }
+  .dot { width: 6px; height: 6px; border-radius: 50%; background: var(--accent); animation: blink 1.4s ease-in-out infinite; }
+  .dot:nth-child(2) { animation-delay: .2s; }
+  .dot:nth-child(3) { animation-delay: .4s; }
+  @keyframes blink { 0%,80%,100%{opacity:.2;transform:scale(.8)} 40%{opacity:1;transform:scale(1)} }
+  .quick-prompts { padding: 0 20px 12px; display: flex; gap: 8px; flex-wrap: wrap; flex-shrink: 0; }
+  .qp-btn { background: var(--surface); border: 0.5px solid var(--border2); border-radius: 20px; padding: 7px 14px; font-size: 12px; color: var(--text-dim); cursor: pointer; font-family: 'DM Sans', sans-serif; transition: all .15s; }
+  .qp-btn:hover { background: var(--surface2); color: var(--text); border-color: var(--accent-border); }
+  .img-preview { margin: 0 20px 8px; display: inline-flex; align-items: center; gap: 10px; background: var(--surface); border: 0.5px solid var(--border2); border-radius: 10px; padding: 8px 12px; flex-shrink: 0; }
+  .img-preview img { width: 36px; height: 36px; object-fit: cover; border-radius: 6px; }
+  .img-preview span { font-size: 12px; color: var(--text-dim); }
+  .img-preview button { background: transparent; border: none; color: var(--text-dim); cursor: pointer; font-size: 18px; line-height: 1; padding: 0 2px; }
+  .input-area { padding: 12px 20px 18px; border-top: 0.5px solid var(--border); flex-shrink: 0; }
+  .input-box { background: var(--surface); border: 0.5px solid var(--border2); border-radius: 14px; padding: 10px 12px; display: flex; align-items: flex-end; gap: 8px; transition: border-color .15s; }
+  .input-box:focus-within { border-color: var(--accent-border); }
+  .btn-attach { background: transparent; border: 0.5px solid var(--border2); border-radius: 8px; width: 36px; height: 36px; color: var(--text-dim); cursor: pointer; display: flex; align-items: center; justify-content: center; flex-shrink: 0; transition: all .15s; }
+  .btn-attach:hover { background: var(--surface2); color: var(--text); }
+  textarea { flex: 1; background: transparent; border: none; outline: none; color: var(--text); font-family: 'DM Sans', sans-serif; font-size: 14px; line-height: 1.5; resize: none; min-height: 36px; max-height: 120px; }
+  textarea::placeholder { color: var(--text-faint); }
+  .btn-send { width: 36px; height: 36px; border-radius: 8px; border: none; background: var(--accent); color: #fff; cursor: pointer; display: flex; align-items: center; justify-content: center; flex-shrink: 0; transition: background .15s; }
+  .btn-send:disabled { background: var(--surface2); cursor: default; }
+  .btn-send:not(:disabled):hover { background: #e84e2a; }
+  .hint { font-size: 11px; color: var(--text-faint); text-align: center; margin-top: 8px; }
+</style>
+</head>
+<body>
+<div class="app">
+  <div class="header">
+    <div class="logo">🐱</div>
+    <div class="header-text">
+      <div class="title">Agente GCLD — Tarifazo Jalisco</div>
+      <div class="subtitle">● Conectado a Notion vía Make</div>
+    </div>
+  </div>
+  <div class="messages" id="messages"></div>
+  <div class="quick-prompts" id="quickPrompts">
+    <button class="qp-btn" onclick="usePrompt('Voy a subir una foto de la cartulina')">📸 Foto de cartulina</button>
+    <button class="qp-btn" onclick="usePrompt('Tengo resultados del instrumento digital')">📊 Resultados digitales</button>
+    <button class="qp-btn" onclick="usePrompt('Quiero registrar observaciones de campo')">📝 Observaciones</button>
+  </div>
+  <div id="imgPreviewBar" style="display:none" class="img-preview">
+    <img id="imgThumb" src="" alt="preview">
+    <span id="imgName"></span>
+    <button onclick="clearImage()">×</button>
+  </div>
+  <div class="input-area">
+    <div class="input-box">
+      <input type="file" id="fileInput" accept="image/*" style="display:none" onchange="handleFile(event)">
+      <button class="btn-attach" onclick="document.getElementById('fileInput').click()" title="Adjuntar imagen">
+        <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M18.375 12.739l-7.693 7.693a4.5 4.5 0 01-6.364-6.364l10.94-10.94A3 3 0 1119.5 7.372L8.552 18.32m.009-.01l-.01.01m5.699-9.941l-7.81 7.81a1.5 1.5 0 002.112 2.13"/>
+        </svg>
+      </button>
+      <textarea id="inputText" placeholder="Escribe aquí o adjunta una foto del instrumento..." rows="1"
+        oninput="autoResize(this)" onkeydown="handleKey(event)"></textarea>
+      <button class="btn-send" id="sendBtn" onclick="sendMessage()" disabled>
+        <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M6 12L3.269 3.126A59.768 59.768 0 0121.485 12 59.77 59.77 0 013.269 20.876L5.999 12zm0 0h7.5"/>
+        </svg>
+      </button>
+    </div>
+    <div class="hint">Enter para enviar · 📎 para adjuntar foto</div>
+  </div>
+</div>
+
+<script>
+const WEBHOOK_SESIONES = "https://hook.us2.make.com/w8ss4n7jaudbpmj4swespieayjdrqg8z";
+const WEBHOOK_OBSERVACIONES = "https://hook.us2.make.com/gi129fx94jmwll9yq2widh2w8oazkrl6";
+
+const BIENVENIDA = '¡Hola! Soy el agente de datos de GCLD.\n\nPuedo ayudarte a registrar en Notion:\n\n• **Foto de cartulina** — adjunta la imagen y cuento los puntos azules\n• **Resultados digitales** — describe o comparte los votos\n• **Observaciones de campo** — relatos, frases o fricciones\n\n¿Qué quieres registrar hoy?';
+
+const SYSTEM_PROMPT = `Eres el agente de datos de Gatitos contra la Desigualdad (GCLD), un proyecto de activismo social en Guadalajara, México. Tu función es procesar información de instrumentos de recolección de datos sobre el "tarifazo" (aumento de tarifas de transporte público en Jalisco) y estructurarla para publicarla en Notion.
+
+CONTEXTO DEL PROYECTO:
+- El tarifazo afecta principalmente en: Gasto, Tiempo, Injusticia, Saturación, Inseguridad
+- Se usan 2 instrumentos: físico (cartulina con puntos azules) y digital (app web con votos)
+- Los datos de ambos instrumentos deben consolidarse en un solo registro por sesión
+
+MODOS DE OPERACIÓN:
+
+MODO A — Foto de instrumento físico (cartulina con puntos):
+1. Analiza la imagen y cuenta los puntos azules en cada columna
+2. Presenta el conteo detectado al usuario para confirmación: "Detecté Gasto: X, Tiempo: X... ¿es correcto?"
+3. Pregunta metadatos faltantes: nombre de sesión, fecha, zona/ubicación
+4. Una vez confirmado, genera el JSON estructurado
+
+MODO B — Instrumento digital (screenshot o descripción de resultados):
+1. Extrae votos y porcentajes por categoría
+2. Pregunta si debe crear registro nuevo o actualizar uno existente
+3. Si actualiza, consolida sumando votos físicos + digitales
+4. Genera el JSON estructurado
+
+MODO C — Texto libre / observaciones:
+1. Clasifica el contenido: relato, fricción observada, frase espontánea, o hallazgo
+2. Infiere emoción dominante y tags relevantes del tarifazo
+3. Sugiere en qué base guardar (Sesiones u Observaciones)
+4. Genera el JSON estructurado
+
+REGLAS IMPORTANTES:
+- SIEMPRE confirma los datos con el usuario antes de publicar
+- NUNCA publiques sin validación explícita del usuario
+- Cuando el usuario confirme, responde con el JSON en el formato exacto de abajo
+- Usa siempre la palabra "hallazgo" en lugar de "insight"
+
+Para sesión de levantamiento:
+\`\`\`json_notion_sesion
+{
+  "nombre_sesion": "...",
+  "fecha": "YYYY-MM-DD",
+  "zona": "...",
+  "fuente": "físico|digital|ambos",
+  "votos_gasto": 0,
+  "votos_tiempo": 0,
+  "votos_injusticia": 0,
+  "votos_saturacion": 0,
+  "votos_inseguridad": 0,
+  "total_votos": 0,
+  "hallazgo_principal": "...",
+  "observaciones": "..."
+}
+\`\`\`
+
+Para observación/relato:
+\`\`\`json_notion_observacion
+{
+  "relato": "...",
+  "tipo": "relato|fricción|hallazgo|frase",
+  "emocion_dominante": "enojo|frustración|miedo|resignación|otro",
+  "tags": ["tag1", "tag2"],
+  "sesion_relacionada": "nombre de sesión o vacío"
+}
+\`\`\`
+
+Responde siempre en español, de forma clara y amigable. Eres parte del equipo de GCLD.`;
+
+let conversation = [];
+let attachedImage = null;
+let isLoading = false;
+
+function autoResize(ta) {
+  ta.style.height = 'auto';
+  ta.style.height = Math.min(ta.scrollHeight, 120) + 'px';
+  updateSendBtn();
+}
+
+function updateSendBtn() {
+  const txt = document.getElementById('inputText').value.trim();
+  document.getElementById('sendBtn').disabled = (!txt && !attachedImage) || isLoading;
+}
+
+function handleKey(e) {
+  if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendMessage(); }
+}
+
+function usePrompt(text) {
+  document.getElementById('inputText').value = text;
+  autoResize(document.getElementById('inputText'));
+  document.getElementById('inputText').focus();
+}
+
+function handleFile(e) {
+  const file = e.target.files[0];
+  if (!file || !file.type.startsWith('image/')) return;
+  const reader = new FileReader();
+  reader.onload = ev => {
+    attachedImage = { preview: ev.target.result, name: file.name, base64: ev.target.result.split(',')[1], mediaType: file.type };
+    document.getElementById('imgThumb').src = ev.target.result;
+    document.getElementById('imgName').textContent = file.name;
+    document.getElementById('imgPreviewBar').style.display = 'inline-flex';
+    updateSendBtn();
+  };
+  reader.readAsDataURL(file);
+  e.target.value = '';
+}
+
+function clearImage() {
+  attachedImage = null;
+  document.getElementById('imgPreviewBar').style.display = 'none';
+  updateSendBtn();
+}
+
+function formatText(text) {
+  return text
+    .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+    .replace(/\n/g, '<br>');
+}
+
+function extractJSON(text) {
+  const s = text.match(/```json_notion_sesion\n([\s\S]*?)```/);
+  const o = text.match(/```json_notion_observacion\n([\s\S]*?)```/);
+  if (s) { try { return { type: 'sesion', data: JSON.parse(s[1]) }; } catch(e){} }
+  if (o) { try { return { type: 'observacion', data: JSON.parse(o[1]) }; } catch(e){} }
+  return null;
+}
+
+function cleanText(text) {
+  return text
+    .replace(/```json_notion_sesion[\s\S]*?```/g, '')
+    .replace(/```json_notion_observacion[\s\S]*?```/g, '')
+    .trim();
+}
+
+function scrollBottom() {
+  const m = document.getElementById('messages');
+  m.scrollTop = m.scrollHeight;
+}
+
+function addMessage(role, content, imgSrc) {
+  const msgs = document.getElementById('messages');
+  const wrap = document.createElement('div');
+  wrap.className = 'msg-wrap ' + role;
+  const label = document.createElement('div');
+  label.className = 'msg-label';
+  label.textContent = role === 'user' ? 'Tú' : 'Agente';
+  wrap.appendChild(label);
+  if (imgSrc) {
+    const bubble = document.createElement('div');
+    bubble.className = 'bubble ' + role;
+    const img = document.createElement('img');
+    img.className = 'attached';
+    img.src = imgSrc;
+    bubble.appendChild(img);
+    if (content) bubble.innerHTML += formatText(content);
+    wrap.appendChild(bubble);
+  } else if (content) {
+    const bubble = document.createElement('div');
+    bubble.className = 'bubble ' + role;
+    bubble.innerHTML = formatText(content);
+    wrap.appendChild(bubble);
+  }
+  msgs.appendChild(wrap);
+  scrollBottom();
+}
+
+function addTyping() {
+  const msgs = document.getElementById('messages');
+  const wrap = document.createElement('div');
+  wrap.className = 'msg-wrap agent';
+  wrap.id = 'typing';
+  const label = document.createElement('div');
+  label.className = 'msg-label';
+  label.textContent = 'Agente';
+  const bubble = document.createElement('div');
+  bubble.className = 'bubble agent typing';
+  bubble.innerHTML = '<div class="dot"></div><div class="dot"></div><div class="dot"></div>';
+  wrap.appendChild(label);
+  wrap.appendChild(bubble);
+  msgs.appendChild(wrap);
+  scrollBottom();
+}
+
+function removeTyping() {
+  const t = document.getElementById('typing');
+  if (t) t.remove();
+}
+
+function addJSONCard(jsonData) {
+  const msgs = document.getElementById('messages');
+  const wrap = document.createElement('div');
+  wrap.className = 'msg-wrap agent';
+  const card = document.createElement('div');
+  card.className = 'json-card';
+  const dataStr = encodeURIComponent(JSON.stringify(jsonData));
+  const base = jsonData.type === 'sesion' ? 'sesión de levantamiento' : 'observaciones de campo';
+  card.innerHTML = `
+    <div>
+      <div class="json-card-label">¿Guardamos este registro?</div>
+      <div class="json-card-sub">Se guardará como ${base}</div>
+    </div>
+    <button class="btn-publish" onclick="publishToNotion('${dataStr}', this)">Guardar en Notion</button>
+  `;
+  wrap.appendChild(card);
+  msgs.appendChild(wrap);
+  scrollBottom();
+}
+
+function showBienvenida() {
+  conversation = [];
+  setTimeout(() => {
+    addMessage('agent', '¿Quieres registrar algo más? Aquí estoy 🐱\n\n• **Foto de cartulina** — adjunta la imagen y cuento los puntos azules\n• **Resultados digitales** — describe o comparte los votos\n• **Observaciones de campo** — relatos, frases o fricciones');
+  }, 800);
+}
+
+async function publishToNotion(dataStr, btn) {
+  const jsonData = JSON.parse(decodeURIComponent(dataStr));
+  btn.disabled = true;
+  btn.textContent = 'Guardando...';
+  const webhook = jsonData.type === 'sesion' ? WEBHOOK_SESIONES : WEBHOOK_OBSERVACIONES;
+  try {
+    const resp = await fetch(webhook, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(jsonData.data)
+    });
+    const text = await resp.text();
+    if (text === 'Accepted' || resp.ok) {
+      btn.textContent = '✓ Guardado';
+      btn.style.background = '#1a3a2a';
+      btn.style.color = '#4ade80';
+      btn.style.borderColor = '#2a5a3a';
+      const base = jsonData.type === 'sesion' ? 'Sesiones de levantamiento' : 'Observaciones';
+      addMessage('agent', `✅ ¡Registro guardado en Notion en la base de ${base}!`);
+      showBienvenida();
+    } else {
+      btn.textContent = 'Error — reintentar';
+      btn.disabled = false;
+    }
+  } catch(e) {
+    btn.textContent = 'Error — reintentar';
+    btn.disabled = false;
+  }
+}
+
+async function sendMessage() {
+  const ta = document.getElementById('inputText');
+  const text = ta.value.trim();
+  if ((!text && !attachedImage) || isLoading) return;
+
+  document.getElementById('quickPrompts').style.display = 'none';
+  addMessage('user', text, attachedImage?.preview);
+
+  let apiMsg;
+  if (attachedImage) {
+    apiMsg = { role: 'user', content: [
+      { type: 'image', source: { type: 'base64', media_type: attachedImage.mediaType, data: attachedImage.base64 } },
+      { type: 'text', text: text || 'Analiza esta imagen del instrumento y cuenta los puntos azules por columna' }
+    ]};
+  } else {
+    apiMsg = { role: 'user', content: text };
+  }
+  conversation.push(apiMsg);
+
+  ta.value = '';
+  ta.style.height = 'auto';
+  clearImage();
+  isLoading = true;
+  updateSendBtn();
+  addTyping();
+
+  try {
+    const resp = await fetch('/api/chat', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        model: 'claude-sonnet-4-5',
+        max_tokens: 1000,
+        system: SYSTEM_PROMPT,
+        messages: conversation
+      })
+    });
+    const data = await resp.json();
+    const reply = data.content?.[0]?.text || 'Sin respuesta.';
+    conversation.push({ role: 'assistant', content: reply });
+
+    removeTyping();
+    const clean = cleanText(reply);
+    if (clean) addMessage('agent', clean);
+    const json = extractJSON(reply);
+    if (json) addJSONCard(json);
+
+  } catch(e) {
+    removeTyping();
+    addMessage('agent', 'Error de conexión. Intenta de nuevo.');
+  }
+
+  isLoading = false;
+  updateSendBtn();
+}
+
+window.onload = () => {
+  addMessage('agent', BIENVENIDA);
+  document.getElementById('inputText').addEventListener('input', updateSendBtn);
+};
+</script>
+</body>
+</html>
