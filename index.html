@@ -109,7 +109,9 @@ const WEBHOOK_OBSERVACIONES = "https://hook.us2.make.com/gi129fx94jmwll9yq2widh2
 
 const BIENVENIDA = '¡Hola! Soy el agente de datos de GCLD.\n\nPuedo ayudarte a registrar en Notion:\n\n• **Foto de cartulina** — adjunta la imagen y cuento los puntos azules\n• **Resultados digitales** — describe o comparte los votos\n• **Observaciones de campo** — relatos, frases o fricciones\n\n¿Qué quieres registrar hoy?';
 
-const SYSTEM_PROMPT = `Eres el agente de datos de Gatitos contra la Desigualdad (GCLD), un proyecto de activismo social en Guadalajara, México. Tu función es procesar información de instrumentos de recolección de datos sobre el "tarifazo" (aumento de tarifas de transporte público en Jalisco) y estructurarla para publicarla en Notion.
+const getSystemPrompt = () => {
+  const hoyISO = new Date().toISOString().split('T')[0];
+  return `Eres el agente de datos de Gatitos contra la Desigualdad (GCLD), un proyecto de activismo social en Guadalajara, México. Tu función es procesar información de instrumentos de recolección de datos sobre el "tarifazo" (aumento de tarifas de transporte público en Jalisco) y estructurarla para publicarla en Notion.
 
 CONTEXTO DEL PROYECTO:
 - El tarifazo afecta principalmente en: Gasto, Tiempo, Injusticia, Saturación, Inseguridad
@@ -174,7 +176,10 @@ Para observación/relato:
 }
 \`\`\`
 
-Responde siempre en español, de forma clara y amigable. Eres parte del equipo de GCLD.`;
+Responde siempre en español, de forma clara y amigable. Eres parte del equipo de GCLD.
+
+FECHA DE HOY: ${hoyISO} — usa SIEMPRE esta fecha si el usuario no especifica otra.`;
+};
 
 let conversation = [];
 let attachedImage = null;
@@ -318,7 +323,6 @@ function addJSONCard(jsonData) {
 }
 
 function showBienvenida() {
-  conversation = [];
   setTimeout(() => {
     addMessage('agent', '¿Quieres registrar algo más? Aquí estoy 🐱\n\n• **Foto de cartulina** — adjunta la imagen y cuento los puntos azules\n• **Resultados digitales** — describe o comparte los votos\n• **Observaciones de campo** — relatos, frases o fricciones');
   }, 800);
@@ -387,7 +391,7 @@ async function sendMessage() {
       body: JSON.stringify({
         model: 'claude-sonnet-4-5',
         max_tokens: 1000,
-        system: SYSTEM_PROMPT,
+        system: getSystemPrompt(),
         messages: conversation
       })
     });
