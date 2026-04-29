@@ -110,7 +110,8 @@ const WEBHOOK_OBSERVACIONES = "https://hook.us2.make.com/gi129fx94jmwll9yq2widh2
 const BIENVENIDA = '¡Hola! Soy el agente de datos de GCLD.\n\nPuedo ayudarte a registrar en Notion:\n\n• **Foto de cartulina** — adjunta la imagen y cuento los puntos azules\n• **Resultados digitales** — describe o comparte los votos\n• **Observaciones de campo** — relatos, frases o fricciones\n\n¿Qué quieres registrar hoy?';
 
 const getSystemPrompt = () => {
-  const hoyISO = new Date().toISOString().split('T')[0];
+  const hoy = new Date();
+  const hoyISO = hoy.getFullYear() + '-' + String(hoy.getMonth()+1).padStart(2,'0') + '-' + String(hoy.getDate()).padStart(2,'0');
   return `Eres el agente de datos de Gatitos contra la Desigualdad (GCLD), un proyecto de activismo social en Guadalajara, México. Tu función es procesar información de instrumentos de recolección de datos sobre el "tarifazo" (aumento de tarifas de transporte público en Jalisco) y estructurarla para publicarla en Notion.
 
 CONTEXTO DEL PROYECTO:
