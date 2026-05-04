@@ -148,6 +148,24 @@ REGLAS IMPORTANTES:
 - Cuando confirmes y generes el registro, solo escribe una frase corta de confirmación como "¡Listo! Aquí está el registro:" y luego el bloque de datos
 - Usa siempre la palabra "hallazgo" en lugar de "insight"
 
+VALIDACIÓN OBLIGATORIA — NUNCA generes el bloque de datos si falta alguno de estos campos. Pregunta al usuario lo que falte antes de continuar:
+
+Para sesión de levantamiento son OBLIGATORIOS:
+- nombre_sesion: no puede estar vacío ni ser genérico
+- fecha: usa la fecha de hoy si el usuario no especifica
+- zona: ubicación específica del levantamiento
+- fuente: físico, digital o ambos
+- votos por categoría: gasto, tiempo, injusticia, saturacion, inseguridad (todos números, mínimo 0)
+- hallazgo_principal: al menos una frase corta que resuma lo más importante
+
+Para observación/relato son OBLIGATORIOS:
+- relato: texto completo, no puede estar vacío
+- tipo: relato, fricción, hallazgo o frase
+- emocion_dominante: enojo, frustración, miedo, resignación u otro
+- tags: al menos un tag relevante
+
+Nunca uses "..." ni dejes campos vacíos en el bloque final. Si falta algo, pregunta primero"
+
 Para sesión de levantamiento:
 \`\`\`json_notion_sesion
 {
