@@ -4,85 +4,326 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Agente GCLD — Gatitos contra la Desigualdad</title>
-<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@800&family=DM+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700&display=swap" rel="stylesheet">
 <style>
   :root {
-    --bg: #0c0c10; --surface: #13131f; --surface2: #1a1a28;
-    --border: #1e1e30; --border2: #2a2a40;
-    --accent: #ff5e3a; --accent-dim: #ff5e3a18; --accent-border: #ff5e3a30;
-    --text: #d8d8e8; --text-dim: #666680; --text-faint: #2a2a40;
-    --green: #4ade80; --notion: #8888ee; --notion-dim: #2a2a5a; --notion-border: #3a3a7a;
+    --red: #e11d2e;
+    --red-dark: #c7182a;
+    --black: #111111;
+    --white: #ffffff;
+    --bg: #f0f0f0;
+    --surface: #e8e8e8;
+    --border: #d8d8d8;
+    --text-mid: #666666;
+    --text-faint: #aaaaaa;
   }
+
   * { box-sizing: border-box; margin: 0; padding: 0; }
-  html, body { height: 100%; background: var(--bg); font-family: 'DM Sans', sans-serif; color: var(--text); }
-  .app { display: flex; flex-direction: column; height: 100vh; max-width: 680px; margin: 0 auto; }
-  .header { display: flex; align-items: center; gap: 12px; padding: 14px 20px; border-bottom: 0.5px solid var(--border); flex-shrink: 0; }
-  .logo { width: 36px; height: 36px; border-radius: 10px; background: var(--accent-dim); border: 0.5px solid var(--accent-border); display: flex; align-items: center; justify-content: center; font-size: 18px; flex-shrink: 0; }
-  .header-text .title { font-size: 14px; font-weight: 600; color: #f0f0f8; }
-  .header-text .subtitle { font-size: 11px; color: var(--green); margin-top: 1px; }
-  .messages { flex: 1; overflow-y: auto; padding: 20px 20px 10px; display: flex; flex-direction: column; gap: 16px; scroll-behavior: smooth; }
-  .messages::-webkit-scrollbar { width: 3px; }
-  .messages::-webkit-scrollbar-thumb { background: var(--border2); border-radius: 2px; }
-  .msg-wrap { display: flex; flex-direction: column; gap: 4px; }
-  .msg-wrap.user { align-items: flex-end; }
+  html, body { height: 100%; background: var(--bg); font-family: 'DM Sans', sans-serif; color: var(--black); }
+
+  /* ─── APP SHELL ─── */
+  .app { display: flex; flex-direction: column; height: 100vh; max-width: 720px; margin: 0 auto; }
+
+  /* ─── HEADER ─── */
+  .header {
+    background: var(--black);
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    padding: 12px 24px;
+    flex-shrink: 0;
+  }
+  .logo {
+    width: 40px; height: 40px;
+    border-radius: 10px;
+    background: var(--red);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 20px; flex-shrink: 0;
+  }
+  .header-text { flex: 1; min-width: 0; }
+  .header-text .title {
+    font-family: 'Syne', sans-serif;
+    font-size: 15px; font-weight: 800;
+    color: var(--white); line-height: 1.2;
+  }
+  .header-text .subtitle {
+    font-size: 11px; color: #777; margin-top: 1px;
+  }
+  .notion-badge {
+    display: flex; align-items: center; gap: 7px;
+    background: rgba(255,255,255,0.07);
+    border: 1px solid rgba(255,255,255,0.12);
+    border-radius: 20px;
+    padding: 6px 14px;
+    font-size: 11px; color: #ccc;
+    flex-shrink: 0; white-space: nowrap;
+  }
+  .notion-badge .dot-green {
+    width: 7px; height: 7px;
+    border-radius: 50%;
+    background: #4ade80;
+    flex-shrink: 0;
+  }
+
+  /* ─── MESSAGES ─── */
+  .messages {
+    flex: 1; overflow-y: auto;
+    padding: 28px 24px 12px;
+    display: flex; flex-direction: column;
+    gap: 22px;
+    scroll-behavior: smooth;
+  }
+  .messages::-webkit-scrollbar { width: 4px; }
+  .messages::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
+
+  /* ─── BUBBLE WRAPPERS ─── */
+  .msg-wrap { display: flex; flex-direction: column; gap: 5px; }
+  .msg-wrap.user  { align-items: flex-end; }
   .msg-wrap.agent { align-items: flex-start; }
-  .msg-label { font-size: 10px; color: var(--text-faint); text-transform: uppercase; letter-spacing: .08em; padding: 0 4px; }
-  .bubble { max-width: 85%; padding: 12px 16px; line-height: 1.7; font-size: 14px; color: var(--text); white-space: pre-wrap; word-break: break-word; }
-  .bubble.user { background: var(--accent-dim); border: 0.5px solid var(--accent-border); border-radius: 14px 14px 4px 14px; }
-  .bubble.agent { background: var(--surface); border: 0.5px solid var(--border); border-radius: 4px 14px 14px 14px; }
-  .bubble strong { color: #f0f0f8; font-weight: 500; }
-  .bubble img.attached { max-width: 200px; border-radius: 8px; margin-bottom: 8px; display: block; border: 0.5px solid var(--border2); }
-  .json-card { max-width: 85%; background: var(--surface); border: 0.5px solid var(--notion-border); border-radius: 12px; padding: 14px 16px; display: flex; align-items: center; justify-content: space-between; gap: 12px; }
-  .json-card-label { font-size: 13px; color: #f0f0f8; font-weight: 500; margin-bottom: 3px; }
-  .json-card-sub { font-size: 11px; color: var(--text-dim); }
-  .btn-publish { background: var(--notion-dim); color: var(--notion); border: 0.5px solid var(--notion-border); border-radius: 8px; padding: 9px 16px; font-size: 12px; font-family: 'DM Sans', sans-serif; cursor: pointer; white-space: nowrap; flex-shrink: 0; transition: background .15s; }
-  .btn-publish:hover { background: #35356a; }
-  .btn-publish:disabled { opacity: .5; cursor: default; }
-  .typing { display: flex; gap: 5px; padding: 14px 18px; }
-  .dot { width: 6px; height: 6px; border-radius: 50%; background: var(--accent); animation: blink 1.4s ease-in-out infinite; }
+
+  .msg-label {
+    font-size: 10px; font-weight: 700;
+    text-transform: uppercase; letter-spacing: .12em;
+    color: var(--text-faint);
+    padding: 0 6px;
+  }
+
+  /* ─── BUBBLES ─── */
+  .bubble {
+    max-width: 84%;
+    padding: 14px 18px;
+    line-height: 1.7;
+    font-size: 14.5px;
+    white-space: pre-wrap;
+    word-break: break-word;
+  }
+
+  /* User — black, editorial */
+  .bubble.user {
+    background: var(--black);
+    color: var(--white);
+    border-radius: 16px 16px 4px 16px;
+  }
+  .bubble.user strong { color: var(--white); font-weight: 700; }
+
+  /* Agent — white card, red left rule */
+  .bubble.agent {
+    background: var(--white);
+    color: var(--black);
+    border-radius: 4px 16px 16px 16px;
+    border-left: 3px solid var(--red);
+    box-shadow: 0 1px 6px rgba(0,0,0,0.08);
+  }
+  .bubble.agent strong { color: var(--black); font-weight: 700; }
+
+  .bubble img.attached {
+    max-width: 220px; border-radius: 10px;
+    margin-bottom: 10px; display: block;
+    border: 1px solid var(--border);
+  }
+
+  /* Typing indicator */
+  .bubble.typing {
+    display: flex; gap: 6px; align-items: center;
+    padding: 16px 20px;
+  }
+  .dot {
+    width: 7px; height: 7px;
+    border-radius: 50%;
+    background: var(--red);
+    animation: blink 1.4s ease-in-out infinite;
+  }
   .dot:nth-child(2) { animation-delay: .2s; }
   .dot:nth-child(3) { animation-delay: .4s; }
   @keyframes blink { 0%,80%,100%{opacity:.2;transform:scale(.8)} 40%{opacity:1;transform:scale(1)} }
-  .quick-prompts { padding: 0 20px 12px; display: flex; gap: 8px; flex-wrap: wrap; flex-shrink: 0; }
-  .qp-btn { background: var(--surface); border: 0.5px solid var(--border2); border-radius: 20px; padding: 7px 14px; font-size: 12px; color: var(--text-dim); cursor: pointer; font-family: 'DM Sans', sans-serif; transition: all .15s; }
-  .qp-btn:hover { background: var(--surface2); color: var(--text); border-color: var(--accent-border); }
-  .img-preview { margin: 0 20px 8px; display: inline-flex; align-items: center; gap: 10px; background: var(--surface); border: 0.5px solid var(--border2); border-radius: 10px; padding: 8px 12px; flex-shrink: 0; }
+
+  /* ─── JSON / SAVE CARD ─── */
+  .json-card {
+    max-width: 84%;
+    background: var(--white);
+    border-radius: 16px;
+    overflow: hidden;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.10);
+    border: 1px solid var(--border);
+    display: flex;
+    flex-direction: column;
+  }
+  .json-card > div {
+    padding: 16px 20px 12px;
+  }
+  .json-card-label {
+    font-family: 'Syne', sans-serif;
+    font-size: 15px; font-weight: 800;
+    color: var(--black); margin-bottom: 4px;
+  }
+  .json-card-sub { font-size: 12px; color: var(--text-mid); }
+
+  .btn-publish {
+    display: block; width: 100%;
+    background: var(--red);
+    color: var(--white);
+    border: none;
+    padding: 15px 20px;
+    font-size: 14px; font-weight: 700;
+    font-family: 'DM Sans', sans-serif;
+    cursor: pointer;
+    text-align: center;
+    letter-spacing: .03em;
+    transition: background .15s;
+  }
+  .btn-publish:hover { background: var(--red-dark); }
+  .btn-publish:disabled { background: #ccc; color: #888; cursor: default; }
+
+  /* ─── QUICK PROMPTS ─── */
+  .quick-prompts {
+    padding: 0 24px 16px;
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 10px;
+    flex-shrink: 0;
+  }
+  .qp-btn {
+    background: var(--white);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 16px 14px;
+    font-family: 'DM Sans', sans-serif;
+    cursor: pointer;
+    text-align: left;
+    transition: border-color .15s, box-shadow .15s;
+    display: flex; flex-direction: column; gap: 8px;
+  }
+  .qp-btn:hover {
+    border-color: var(--red);
+    box-shadow: 0 2px 10px rgba(225,29,46,0.14);
+  }
+  .qp-icon { font-size: 24px; line-height: 1; }
+  .qp-title { font-size: 13px; font-weight: 700; color: var(--black); line-height: 1.3; }
+  .qp-desc { font-size: 11px; color: var(--text-mid); line-height: 1.45; }
+  .qp-arrow { font-size: 12px; color: var(--red); font-weight: 700; margin-top: 2px; }
+
+  /* ─── IMAGE PREVIEW BAR ─── */
+  .img-preview {
+    margin: 0 24px 10px;
+    display: inline-flex; align-items: center; gap: 10px;
+    background: var(--white);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 8px 14px;
+    flex-shrink: 0;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.06);
+  }
   .img-preview img { width: 36px; height: 36px; object-fit: cover; border-radius: 6px; }
-  .img-preview span { font-size: 12px; color: var(--text-dim); }
-  .img-preview button { background: transparent; border: none; color: var(--text-dim); cursor: pointer; font-size: 18px; line-height: 1; padding: 0 2px; }
-  .input-area { padding: 12px 20px 18px; border-top: 0.5px solid var(--border); flex-shrink: 0; }
-  .input-box { background: var(--surface); border: 0.5px solid var(--border2); border-radius: 14px; padding: 10px 12px; display: flex; align-items: flex-end; gap: 8px; transition: border-color .15s; }
-  .input-box:focus-within { border-color: var(--accent-border); }
-  .btn-attach { background: transparent; border: 0.5px solid var(--border2); border-radius: 8px; width: 36px; height: 36px; color: var(--text-dim); cursor: pointer; display: flex; align-items: center; justify-content: center; flex-shrink: 0; transition: all .15s; }
-  .btn-attach:hover { background: var(--surface2); color: var(--text); }
-  textarea { flex: 1; background: transparent; border: none; outline: none; color: var(--text); font-family: 'DM Sans', sans-serif; font-size: 14px; line-height: 1.5; resize: none; min-height: 36px; max-height: 120px; }
+  .img-preview span { font-size: 12px; color: var(--text-mid); }
+  .img-preview button {
+    background: transparent; border: none;
+    color: var(--text-faint); cursor: pointer;
+    font-size: 20px; line-height: 1; padding: 0 2px;
+  }
+  .img-preview button:hover { color: var(--red); }
+
+  /* ─── INPUT AREA ─── */
+  .input-area {
+    padding: 8px 24px 22px;
+    flex-shrink: 0;
+  }
+  .input-box {
+    background: var(--white);
+    border: 1.5px solid var(--border);
+    border-radius: 14px;
+    padding: 10px 12px;
+    display: flex; align-items: flex-end; gap: 8px;
+    transition: border-color .15s;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.06);
+  }
+  .input-box:focus-within { border-color: var(--black); }
+  .btn-attach {
+    background: transparent;
+    border: 1.5px solid var(--border);
+    border-radius: 8px;
+    width: 38px; height: 38px;
+    color: var(--text-mid);
+    cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0;
+    transition: all .15s;
+  }
+  .btn-attach:hover { border-color: var(--red); color: var(--red); }
+  textarea {
+    flex: 1;
+    background: transparent;
+    border: none; outline: none;
+    color: var(--black);
+    font-family: 'DM Sans', sans-serif;
+    font-size: 14.5px; line-height: 1.5;
+    resize: none;
+    min-height: 38px; max-height: 120px;
+  }
   textarea::placeholder { color: var(--text-faint); }
-  .btn-send { width: 36px; height: 36px; border-radius: 8px; border: none; background: var(--accent); color: #fff; cursor: pointer; display: flex; align-items: center; justify-content: center; flex-shrink: 0; transition: background .15s; }
-  .btn-send:disabled { background: var(--surface2); cursor: default; }
-  .btn-send:not(:disabled):hover { background: #e84e2a; }
+  .btn-send {
+    width: 38px; height: 38px;
+    border-radius: 8px; border: none;
+    background: var(--red);
+    color: var(--white);
+    cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0;
+    transition: background .15s;
+  }
+  .btn-send:disabled { background: var(--surface); cursor: default; }
+  .btn-send:not(:disabled):hover { background: var(--red-dark); }
   .hint { font-size: 11px; color: var(--text-faint); text-align: center; margin-top: 8px; }
 </style>
 </head>
 <body>
 <div class="app">
+
+  <!-- ─── HEADER ─── -->
   <div class="header">
     <div class="logo">🐱</div>
     <div class="header-text">
-      <div class="title">Agente GCLD — Tarifazo Jalisco</div>
-      <div class="subtitle">● Conectado a Notion vía Make</div>
+      <div class="title">Agente GCLD</div>
+      <div class="subtitle">Gatitos contra la Desigualdad — Tarifazo Jalisco</div>
+    </div>
+    <div class="notion-badge">
+      <span class="dot-green"></span>
+      Conectado a Notion vía Make
     </div>
   </div>
+
+  <!-- ─── MESSAGES ─── -->
   <div class="messages" id="messages"></div>
+
+  <!-- ─── QUICK PROMPTS ─── -->
   <div class="quick-prompts" id="quickPrompts">
-    <button class="qp-btn" onclick="usePrompt('Voy a subir una foto de la cartulina')">📸 Foto de cartulina</button>
-    <button class="qp-btn" onclick="usePrompt('Tengo resultados del instrumento digital')">📊 Resultados digitales</button>
-    <button class="qp-btn" onclick="usePrompt('Quiero registrar observaciones de campo')">📝 Observaciones</button>
+    <button class="qp-btn" onclick="usePrompt('Voy a subir una foto de la cartulina')">
+      <span class="qp-icon">📸</span>
+      <span class="qp-title">Foto de cartulina</span>
+      <span class="qp-desc">Sube la foto de tu cartulina o anotación.</span>
+      <span class="qp-arrow">›</span>
+    </button>
+    <button class="qp-btn" onclick="usePrompt('Tengo resultados del instrumento digital')">
+      <span class="qp-icon">📊</span>
+      <span class="qp-title">Resultados digitales</span>
+      <span class="qp-desc">Captura pantallas o datos de tu dispositivo.</span>
+      <span class="qp-arrow">›</span>
+    </button>
+    <button class="qp-btn" onclick="usePrompt('Quiero registrar observaciones de campo')">
+      <span class="qp-icon">📝</span>
+      <span class="qp-title">Observaciones</span>
+      <span class="qp-desc">Cuéntanos con tus palabras qué viste y dónde.</span>
+      <span class="qp-arrow">›</span>
+    </button>
   </div>
+
+  <!-- ─── IMAGE PREVIEW ─── -->
   <div id="imgPreviewBar" style="display:none" class="img-preview">
     <img id="imgThumb" src="" alt="preview">
     <span id="imgName"></span>
     <button onclick="clearImage()">×</button>
   </div>
+
+  <!-- ─── INPUT ─── -->
   <div class="input-area">
     <div class="input-box">
       <input type="file" id="fileInput" accept="image/*" style="display:none" onchange="handleFile(event)">
@@ -101,6 +342,7 @@
     </div>
     <div class="hint">Enter para enviar · 📎 para adjuntar foto</div>
   </div>
+
 </div>
 
 <script>
