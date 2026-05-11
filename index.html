@@ -1,349 +1,109 @@
 <!DOCTYPE html>
-<html lang="es">
+<html class="light" lang="es">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Agente GCLD — Gatitos contra la Desigualdad</title>
-<link href="https://fonts.googleapis.com/css2?family=Syne:wght@800&family=DM+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700&display=swap" rel="stylesheet">
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Agente GCLD</title>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,100..1000;1,9..40,100..1000&family=Syne:wght@400..800&display=swap" rel="stylesheet"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
 <style>
-  :root {
-    --red: #e11d2e;
-    --red-dark: #c7182a;
-    --black: #111111;
-    --white: #ffffff;
-    --bg: #f0f0f0;
-    --surface: #e8e8e8;
-    --border: #d8d8d8;
-    --text-mid: #666666;
-    --text-faint: #aaaaaa;
-  }
-
-  * { box-sizing: border-box; margin: 0; padding: 0; }
-  html, body { height: 100%; background: var(--bg); font-family: 'DM Sans', sans-serif; color: var(--black); }
-
-  /* ─── APP SHELL ─── */
-  .app { display: flex; flex-direction: column; height: 100vh; max-width: 720px; margin: 0 auto; }
-
-  /* ─── HEADER ─── */
-  .header {
-    background: var(--black);
-    display: flex;
-    align-items: center;
-    gap: 14px;
-    padding: 12px 24px;
-    flex-shrink: 0;
-  }
-  .logo {
-    width: 40px; height: 40px;
-    border-radius: 10px;
-    background: var(--red);
-    display: flex; align-items: center; justify-content: center;
-    font-size: 20px; flex-shrink: 0;
-  }
-  .header-text { flex: 1; min-width: 0; }
-  .header-text .title {
-    font-family: 'Syne', sans-serif;
-    font-size: 15px; font-weight: 800;
-    color: var(--white); line-height: 1.2;
-  }
-  .header-text .subtitle {
-    font-size: 11px; color: #777; margin-top: 1px;
-  }
-  .notion-badge {
-    display: flex; align-items: center; gap: 7px;
-    background: rgba(255,255,255,0.07);
-    border: 1px solid rgba(255,255,255,0.12);
-    border-radius: 20px;
-    padding: 6px 14px;
-    font-size: 11px; color: #ccc;
-    flex-shrink: 0; white-space: nowrap;
-  }
-  .notion-badge .dot-green {
-    width: 7px; height: 7px;
-    border-radius: 50%;
-    background: #4ade80;
-    flex-shrink: 0;
-  }
-
-  /* ─── MESSAGES ─── */
-  .messages {
-    flex: 1; overflow-y: auto;
-    padding: 28px 24px 12px;
-    display: flex; flex-direction: column;
-    gap: 22px;
-    scroll-behavior: smooth;
-  }
-  .messages::-webkit-scrollbar { width: 4px; }
-  .messages::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
-
-  /* ─── BUBBLE WRAPPERS ─── */
-  .msg-wrap { display: flex; flex-direction: column; gap: 5px; }
-  .msg-wrap.user  { align-items: flex-end; }
-  .msg-wrap.agent { align-items: flex-start; }
-
-  .msg-label {
-    font-size: 10px; font-weight: 700;
-    text-transform: uppercase; letter-spacing: .12em;
-    color: var(--text-faint);
-    padding: 0 6px;
-  }
-
-  /* ─── BUBBLES ─── */
-  .bubble {
-    max-width: 84%;
-    padding: 14px 18px;
-    line-height: 1.7;
-    font-size: 14.5px;
-    white-space: pre-wrap;
-    word-break: break-word;
-  }
-
-  /* User — black, editorial */
-  .bubble.user {
-    background: var(--black);
-    color: var(--white);
-    border-radius: 16px 16px 4px 16px;
-  }
-  .bubble.user strong { color: var(--white); font-weight: 700; }
-
-  /* Agent — white card, red left rule */
-  .bubble.agent {
-    background: var(--white);
-    color: var(--black);
-    border-radius: 4px 16px 16px 16px;
-    border-left: 3px solid var(--red);
-    box-shadow: 0 1px 6px rgba(0,0,0,0.08);
-  }
-  .bubble.agent strong { color: var(--black); font-weight: 700; }
-
-  .bubble img.attached {
-    max-width: 220px; border-radius: 10px;
-    margin-bottom: 10px; display: block;
-    border: 1px solid var(--border);
-  }
-
-  /* Typing indicator */
-  .bubble.typing {
-    display: flex; gap: 6px; align-items: center;
-    padding: 16px 20px;
-  }
-  .dot {
-    width: 7px; height: 7px;
-    border-radius: 50%;
-    background: var(--red);
-    animation: blink 1.4s ease-in-out infinite;
-  }
+  body { min-height: 100dvh; font-family: 'DM Sans', sans-serif; }
+  #messages { scroll-behavior: smooth; }
+  #messages::-webkit-scrollbar { width: 3px; }
+  #messages::-webkit-scrollbar-thumb { background: #d4d4d4; border-radius: 2px; }
+  .dot { width: 7px; height: 7px; border-radius: 50%; background: #e11d2e; animation: blink 1.4s ease-in-out infinite; display: inline-block; }
   .dot:nth-child(2) { animation-delay: .2s; }
   .dot:nth-child(3) { animation-delay: .4s; }
   @keyframes blink { 0%,80%,100%{opacity:.2;transform:scale(.8)} 40%{opacity:1;transform:scale(1)} }
-
-  /* ─── JSON / SAVE CARD ─── */
-  .json-card {
-    max-width: 84%;
-    background: var(--white);
-    border-radius: 16px;
-    overflow: hidden;
-    box-shadow: 0 2px 10px rgba(0,0,0,0.10);
-    border: 1px solid var(--border);
-    display: flex;
-    flex-direction: column;
-  }
-  .json-card > div {
-    padding: 16px 20px 12px;
-  }
-  .json-card-label {
-    font-family: 'Syne', sans-serif;
-    font-size: 15px; font-weight: 800;
-    color: var(--black); margin-bottom: 4px;
-  }
-  .json-card-sub { font-size: 12px; color: var(--text-mid); }
-
-  .btn-publish {
-    display: block; width: 100%;
-    background: var(--red);
-    color: var(--white);
-    border: none;
-    padding: 15px 20px;
-    font-size: 14px; font-weight: 700;
-    font-family: 'DM Sans', sans-serif;
-    cursor: pointer;
-    text-align: center;
-    letter-spacing: .03em;
-    transition: background .15s;
-  }
-  .btn-publish:hover { background: var(--red-dark); }
-  .btn-publish:disabled { background: #ccc; color: #888; cursor: default; }
-
-  /* ─── QUICK PROMPTS ─── */
-  .quick-prompts {
-    padding: 0 24px 16px;
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    gap: 10px;
-    flex-shrink: 0;
-  }
-  .qp-btn {
-    background: var(--white);
-    border: 1px solid var(--border);
-    border-radius: 14px;
-    padding: 16px 14px;
-    font-family: 'DM Sans', sans-serif;
-    cursor: pointer;
-    text-align: left;
-    transition: border-color .15s, box-shadow .15s;
-    display: flex; flex-direction: column; gap: 8px;
-  }
-  .qp-btn:hover {
-    border-color: var(--red);
-    box-shadow: 0 2px 10px rgba(225,29,46,0.14);
-  }
-  .qp-icon { font-size: 24px; line-height: 1; }
-  .qp-title { font-size: 13px; font-weight: 700; color: var(--black); line-height: 1.3; }
-  .qp-desc { font-size: 11px; color: var(--text-mid); line-height: 1.45; }
-  .qp-arrow { font-size: 12px; color: var(--red); font-weight: 700; margin-top: 2px; }
-
-  /* ─── IMAGE PREVIEW BAR ─── */
-  .img-preview {
-    margin: 0 24px 10px;
-    display: inline-flex; align-items: center; gap: 10px;
-    background: var(--white);
-    border: 1px solid var(--border);
-    border-radius: 10px;
-    padding: 8px 14px;
-    flex-shrink: 0;
-    box-shadow: 0 1px 4px rgba(0,0,0,0.06);
-  }
-  .img-preview img { width: 36px; height: 36px; object-fit: cover; border-radius: 6px; }
-  .img-preview span { font-size: 12px; color: var(--text-mid); }
-  .img-preview button {
-    background: transparent; border: none;
-    color: var(--text-faint); cursor: pointer;
-    font-size: 20px; line-height: 1; padding: 0 2px;
-  }
-  .img-preview button:hover { color: var(--red); }
-
-  /* ─── INPUT AREA ─── */
-  .input-area {
-    padding: 8px 24px 22px;
-    flex-shrink: 0;
-  }
-  .input-box {
-    background: var(--white);
-    border: 1.5px solid var(--border);
-    border-radius: 14px;
-    padding: 10px 12px;
-    display: flex; align-items: flex-end; gap: 8px;
-    transition: border-color .15s;
-    box-shadow: 0 1px 4px rgba(0,0,0,0.06);
-  }
-  .input-box:focus-within { border-color: var(--black); }
-  .btn-attach {
-    background: transparent;
-    border: 1.5px solid var(--border);
-    border-radius: 8px;
-    width: 38px; height: 38px;
-    color: var(--text-mid);
-    cursor: pointer;
-    display: flex; align-items: center; justify-content: center;
-    flex-shrink: 0;
-    transition: all .15s;
-  }
-  .btn-attach:hover { border-color: var(--red); color: var(--red); }
-  textarea {
-    flex: 1;
-    background: transparent;
-    border: none; outline: none;
-    color: var(--black);
-    font-family: 'DM Sans', sans-serif;
-    font-size: 14.5px; line-height: 1.5;
-    resize: none;
-    min-height: 38px; max-height: 120px;
-  }
-  textarea::placeholder { color: var(--text-faint); }
-  .btn-send {
-    width: 38px; height: 38px;
-    border-radius: 8px; border: none;
-    background: var(--red);
-    color: var(--white);
-    cursor: pointer;
-    display: flex; align-items: center; justify-content: center;
-    flex-shrink: 0;
-    transition: background .15s;
-  }
-  .btn-send:disabled { background: var(--surface); cursor: default; }
-  .btn-send:not(:disabled):hover { background: var(--red-dark); }
-  .hint { font-size: 11px; color: var(--text-faint); text-align: center; margin-top: 8px; }
+  .scrollbar-hide::-webkit-scrollbar { display: none; }
+  .scrollbar-hide { -ms-overflow-style: none; scrollbar-width: none; }
+  #imgPreviewBar { display: none; }
+  textarea { resize: none; font-family: 'DM Sans', sans-serif; }
+  .syne { font-family: 'Syne', sans-serif; font-weight: 800; }
+  strong.red { color: #e11d2e; font-weight: 700; }
 </style>
 </head>
-<body>
-<div class="app">
+<body style="background:#f5f5f5; color:#111111; margin:0;">
 
-  <!-- ─── HEADER ─── -->
-  <div class="header">
-    <div class="logo">🐱</div>
-    <div class="header-text">
-      <div class="title">Agente GCLD</div>
-      <div class="subtitle">Gatitos contra la Desigualdad — Tarifazo Jalisco</div>
+<main style="width:100%; max-width:700px; margin:0 auto; display:flex; flex-direction:column; height:100dvh; background:#f5f5f5; box-shadow: 8px 8px 0px 0px #111111; border-left: 4px solid #111; border-right: 4px solid #111; border-bottom: 4px solid #111; overflow:hidden; position:relative;">
+
+  <!-- HEADER -->
+  <header style="background:#111111; color:white; padding:12px 16px; border-bottom:4px solid #111; display:flex; align-items:center; justify-content:space-between; flex-shrink:0; z-index:10;">
+    <div style="display:flex; align-items:center; gap:12px;">
+      <div style="width:40px; height:40px; background:#e11d2e; border-radius:10px; border:2px solid white; display:flex; align-items:center; justify-content:center; font-size:20px; flex-shrink:0;">🐱</div>
+      <div>
+        <div class="syne" style="color:white; font-size:17px; line-height:1.1; letter-spacing:-0.02em;">Agente GCLD</div>
+        <div class="syne" style="color:#e11d2e; font-size:9px; letter-spacing:0.18em; text-transform:uppercase; margin-top:2px;">Gatitos contra la Desigualdad</div>
+      </div>
     </div>
-    <div class="notion-badge">
-      <span class="dot-green"></span>
-      Conectado a Notion vía Make
+    <div style="display:flex; align-items:center; gap:6px; background:rgba(255,255,255,0.08); border:1px solid rgba(255,255,255,0.15); border-radius:100px; padding:5px 12px;">
+      <span style="width:7px; height:7px; border-radius:50%; background:#4ade80; flex-shrink:0; display:inline-block;"></span>
+      <span style="font-size:11px; color:white; font-weight:600; white-space:nowrap;">Conectado a Notion vía Make</span>
     </div>
+  </header>
+
+  <!-- MESSAGES -->
+  <div id="messages" style="flex:1; overflow-y:auto; padding:16px; display:flex; flex-direction:column; gap:14px;"></div>
+
+  <!-- QUICK PROMPTS -->
+  <div id="quickPrompts" style="padding:0 16px 10px; display:flex; gap:8px; overflow-x:auto; flex-shrink:0;" class="scrollbar-hide">
+    <button onclick="usePrompt('Voy a subir una foto de la cartulina')"
+      style="background:white; border:2px solid #111; border-radius:100px; padding:7px 14px; font-family:'Syne',sans-serif; font-weight:800; font-size:12px; color:#111; cursor:pointer; white-space:nowrap; box-shadow:2px 2px 0 #111; transition:all .15s; flex-shrink:0;"
+      onmouseover="this.style.background='#e11d2e';this.style.color='white';this.style.borderColor='#e11d2e';"
+      onmouseout="this.style.background='white';this.style.color='#111';this.style.borderColor='#111';">
+      📸 Foto de cartulina
+    </button>
+    <button onclick="usePrompt('Tengo resultados del instrumento digital')"
+      style="background:white; border:2px solid #111; border-radius:100px; padding:7px 14px; font-family:'Syne',sans-serif; font-weight:800; font-size:12px; color:#111; cursor:pointer; white-space:nowrap; box-shadow:2px 2px 0 #111; transition:all .15s; flex-shrink:0;"
+      onmouseover="this.style.background='#e11d2e';this.style.color='white';this.style.borderColor='#e11d2e';"
+      onmouseout="this.style.background='white';this.style.color='#111';this.style.borderColor='#111';">
+      📊 Resultados digitales
+    </button>
+    <button onclick="usePrompt('Quiero registrar observaciones de campo')"
+      style="background:white; border:2px solid #111; border-radius:100px; padding:7px 14px; font-family:'Syne',sans-serif; font-weight:800; font-size:12px; color:#111; cursor:pointer; white-space:nowrap; box-shadow:2px 2px 0 #111; transition:all .15s; flex-shrink:0;"
+      onmouseover="this.style.background='#e11d2e';this.style.color='white';this.style.borderColor='#e11d2e';"
+      onmouseout="this.style.background='white';this.style.color='#111';this.style.borderColor='#111';">
+      📝 Observaciones
+    </button>
   </div>
 
-  <!-- ─── MESSAGES ─── -->
-  <div class="messages" id="messages"></div>
-
-  <!-- ─── QUICK PROMPTS ─── -->
-  <div class="quick-prompts" id="quickPrompts">
-    <button class="qp-btn" onclick="usePrompt('Voy a subir una foto de la cartulina')">
-      <span class="qp-icon">📸</span>
-      <span class="qp-title">Foto de cartulina</span>
-      <span class="qp-desc">Sube la foto de tu cartulina o anotación.</span>
-      <span class="qp-arrow">›</span>
-    </button>
-    <button class="qp-btn" onclick="usePrompt('Tengo resultados del instrumento digital')">
-      <span class="qp-icon">📊</span>
-      <span class="qp-title">Resultados digitales</span>
-      <span class="qp-desc">Captura pantallas o datos de tu dispositivo.</span>
-      <span class="qp-arrow">›</span>
-    </button>
-    <button class="qp-btn" onclick="usePrompt('Quiero registrar observaciones de campo')">
-      <span class="qp-icon">📝</span>
-      <span class="qp-title">Observaciones</span>
-      <span class="qp-desc">Cuéntanos con tus palabras qué viste y dónde.</span>
-      <span class="qp-arrow">›</span>
-    </button>
-  </div>
-
-  <!-- ─── IMAGE PREVIEW ─── -->
-  <div id="imgPreviewBar" style="display:none" class="img-preview">
-    <img id="imgThumb" src="" alt="preview">
-    <span id="imgName"></span>
-    <button onclick="clearImage()">×</button>
-  </div>
-
-  <!-- ─── INPUT ─── -->
-  <div class="input-area">
-    <div class="input-box">
-      <input type="file" id="fileInput" accept="image/*" style="display:none" onchange="handleFile(event)">
-      <button class="btn-attach" onclick="document.getElementById('fileInput').click()" title="Adjuntar imagen">
-        <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round" d="M18.375 12.739l-7.693 7.693a4.5 4.5 0 01-6.364-6.364l10.94-10.94A3 3 0 1119.5 7.372L8.552 18.32m.009-.01l-.01.01m5.699-9.941l-7.81 7.81a1.5 1.5 0 002.112 2.13"/>
-        </svg>
-      </button>
-      <textarea id="inputText" placeholder="Escribe aquí o adjunta una foto del instrumento..." rows="1"
-        oninput="autoResize(this)" onkeydown="handleKey(event)"></textarea>
-      <button class="btn-send" id="sendBtn" onclick="sendMessage()" disabled>
-        <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round" d="M6 12L3.269 3.126A59.768 59.768 0 0121.485 12 59.77 59.77 0 013.269 20.876L5.999 12zm0 0h7.5"/>
-        </svg>
+  <!-- IMAGE PREVIEW -->
+  <div id="imgPreviewBar" style="padding:0 16px 8px; flex-shrink:0;">
+    <div style="display:inline-flex; align-items:center; gap:8px; background:white; border:2px solid #111; border-radius:100px; padding:4px 12px 4px 4px; box-shadow:2px 2px 0 #111;">
+      <img id="imgThumb" style="width:32px; height:32px; border-radius:50%; object-fit:cover; border:1px solid #111;" alt="preview"/>
+      <span id="imgName" style="font-size:12px; font-weight:700; color:#111; max-width:140px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;"></span>
+      <button onclick="clearImage()" style="background:transparent; border:none; cursor:pointer; color:#111; font-size:18px; line-height:1; padding:0; display:flex; align-items:center;">
+        <span class="material-symbols-outlined" style="font-size:18px;">close</span>
       </button>
     </div>
-    <div class="hint">Enter para enviar · 📎 para adjuntar foto</div>
   </div>
 
-</div>
+  <!-- INPUT AREA -->
+  <div style="background:white; border-top:4px solid #111; padding:12px 16px 16px; flex-shrink:0; z-index:10;">
+    <div style="display:flex; align-items:flex-end; gap:8px;">
+      <input type="file" id="fileInput" accept="image/*" style="display:none;" onchange="handleFile(event)"/>
+      <button onclick="document.getElementById('fileInput').click()"
+        style="width:44px; height:44px; flex-shrink:0; background:#f5f5f5; border:2px solid #111; display:flex; align-items:center; justify-content:center; cursor:pointer; box-shadow:2px 2px 0 #111; transition:all .15s;"
+        onmouseover="this.style.borderColor='#e11d2e';" onmouseout="this.style.borderColor='#111';">
+        <span class="material-symbols-outlined" style="font-size:20px; color:#111; font-variation-settings:'FILL' 0;">attach_file</span>
+      </button>
+      <textarea id="inputText" placeholder="Escribe un mensaje..."
+        oninput="autoResize(this)" onkeydown="handleKey(event)"
+        style="flex:1; background:#f5f5f5; border:2px solid #111; padding:10px 14px; font-size:14px; color:#111; min-height:44px; max-height:120px; outline:none; transition:border-color .15s, background .15s;"
+        onfocus="this.style.borderColor='#e11d2e';this.style.background='white';"
+        onblur="this.style.borderColor='#111';this.style.background='#f5f5f5';"></textarea>
+      <button id="sendBtn" onclick="sendMessage()" disabled
+        style="width:44px; height:44px; flex-shrink:0; background:#e11d2e; border:2px solid #111; display:flex; align-items:center; justify-content:center; cursor:pointer; box-shadow:2px 2px 0 #111; transition:all .15s;">
+        <span class="material-symbols-outlined" style="font-size:20px; color:white; font-variation-settings:'FILL' 1;">arrow_upward</span>
+      </button>
+    </div>
+    <p style="text-align:center; font-size:11px; color:#a3a3a3; margin-top:8px;">Enter para enviar · 📎 para adjuntar foto</p>
+  </div>
+
+</main>
 
 <script>
 const WEBHOOK_SESIONES = "https://hook.us2.make.com/w8ss4n7jaudbpmj4swespieayjdrqg8z";
@@ -366,19 +126,19 @@ MODOS DE OPERACIÓN:
 MODO A — Foto de instrumento físico (cartulina con puntos):
 1. Al recibir una imagen, antes de analizarla pregunta en UN solo mensaje: "Para registrar esta cartulina necesito: ¿cuál es el nombre de la sesión, la zona y la fecha? Puedes dármelos todos juntos en un mensaje"
 2. Con esa info, analiza la imagen y presenta el conteo detectado aclarando siempre: "Este conteo es una propuesta — por favor verifica y corrígeme si es necesario"
-3. Una vez confirmado, genera el JSON estructurado
+3. Una vez confirmado, genera el bloque de datos estructurado
 
 MODO B — Instrumento digital (screenshot o descripción de resultados):
 1. Extrae votos y porcentajes por categoría
 2. Pregunta si debe crear registro nuevo o actualizar uno existente
 3. Si actualiza, consolida sumando votos físicos + digitales
-4. Genera el JSON estructurado
+4. Genera el bloque de datos estructurado
 
 MODO C — Texto libre / observaciones:
 1. Clasifica el contenido: relato, fricción observada, frase espontánea, o hallazgo
 2. Infiere emoción dominante y tags relevantes del tarifazo
 3. Sugiere en qué base guardar (Sesiones u Observaciones)
-4. Genera el JSON estructurado
+4. Genera el bloque de datos estructurado
 
 REGLAS IMPORTANTES:
 - SIEMPRE confirma los datos con el usuario antes de publicar
@@ -397,12 +157,12 @@ REGLAS IMPORTANTES:
 - Cuando presentes datos de votos, siempre incluye el porcentaje de cada categoría sobre el total, no solo el número absoluto
 - Termina siempre con una conclusión interpretativa de una línea: cuál fue la categoría dominante y qué significa
 
-VALIDACIÓN OBLIGATORIA — NUNCA generes el bloque de datos si falta alguno de estos campos. Pregunta al usuario lo que falte antes de continuar:
+VALIDACIÓN OBLIGATORIA — NUNCA generes el bloque de datos si falta alguno de estos campos:
 
 Para sesión de levantamiento son OBLIGATORIOS:
 - nombre_sesion: no puede estar vacío ni ser genérico
 - fecha: usa la fecha de hoy si el usuario no especifica
-- zona: ubicación específica del levantamiento
+- zona: usa "Zona no especificada" si no la tienen
 - fuente: físico, digital o ambos
 - votos por categoría: gasto, tiempo, injusticia, saturacion, inseguridad (todos números, mínimo 0)
 - hallazgo_principal: al menos una frase corta que resuma lo más importante
@@ -413,7 +173,7 @@ Para observación/relato son OBLIGATORIOS:
 - emocion_dominante: enojo, frustración, miedo, resignación u otro
 - tags: al menos un tag relevante
 
-Nunca uses "..." ni dejes campos vacíos en el bloque final. Si falta algo, pregunta primero"
+Nunca uses "..." ni dejes campos vacíos en el bloque final.
 
 Para sesión de levantamiento:
 \`\`\`json_notion_sesion
@@ -460,8 +220,13 @@ function autoResize(ta) {
 }
 
 function updateSendBtn() {
+  const btn = document.getElementById('sendBtn');
   const txt = document.getElementById('inputText').value.trim();
-  document.getElementById('sendBtn').disabled = (!txt && !attachedImage) || isLoading;
+  const disabled = (!txt && !attachedImage) || isLoading;
+  btn.disabled = disabled;
+  btn.style.background = disabled ? '#d4d4d4' : '#e11d2e';
+  btn.style.boxShadow = disabled ? 'none' : '2px 2px 0 #111';
+  btn.style.cursor = disabled ? 'default' : 'pointer';
 }
 
 function handleKey(e) {
@@ -472,6 +237,7 @@ function usePrompt(text) {
   document.getElementById('inputText').value = text;
   autoResize(document.getElementById('inputText'));
   document.getElementById('inputText').focus();
+  updateSendBtn();
 }
 
 function handleFile(e) {
@@ -482,7 +248,7 @@ function handleFile(e) {
     attachedImage = { preview: ev.target.result, name: file.name, base64: ev.target.result.split(',')[1], mediaType: file.type };
     document.getElementById('imgThumb').src = ev.target.result;
     document.getElementById('imgName').textContent = file.name;
-    document.getElementById('imgPreviewBar').style.display = 'inline-flex';
+    document.getElementById('imgPreviewBar').style.display = 'block';
     updateSendBtn();
   };
   reader.readAsDataURL(file);
@@ -492,12 +258,13 @@ function handleFile(e) {
 function clearImage() {
   attachedImage = null;
   document.getElementById('imgPreviewBar').style.display = 'none';
+  document.getElementById('imgThumb').src = '';
   updateSendBtn();
 }
 
 function formatText(text) {
   return text
-    .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+    .replace(/\*\*(.*?)\*\*/g, '<strong style="color:#e11d2e;font-weight:700;">$1</strong>')
     .replace(/\n/g, '<br>');
 }
 
@@ -523,27 +290,26 @@ function scrollBottom() {
 
 function addMessage(role, content, imgSrc) {
   const msgs = document.getElementById('messages');
+  document.getElementById('quickPrompts').style.display = 'none';
   const wrap = document.createElement('div');
-  wrap.className = 'msg-wrap ' + role;
-  const label = document.createElement('div');
-  label.className = 'msg-label';
-  label.textContent = role === 'user' ? 'Tú' : 'Agente';
-  wrap.appendChild(label);
-  if (imgSrc) {
-    const bubble = document.createElement('div');
-    bubble.className = 'bubble ' + role;
-    const img = document.createElement('img');
-    img.className = 'attached';
-    img.src = imgSrc;
-    bubble.appendChild(img);
-    if (content) bubble.innerHTML += formatText(content);
-    wrap.appendChild(bubble);
-  } else if (content) {
-    const bubble = document.createElement('div');
-    bubble.className = 'bubble ' + role;
-    bubble.innerHTML = formatText(content);
-    wrap.appendChild(bubble);
+
+  if (role === 'user') {
+    wrap.style.cssText = 'display:flex; flex-direction:column; align-items:flex-end; align-self:flex-end; max-width:85%;';
+    wrap.innerHTML = `
+      <span style="font-family:'Syne',sans-serif; font-size:9px; font-weight:800; text-transform:uppercase; letter-spacing:0.12em; color:#a3a3a3; margin-bottom:4px; padding:0 4px;">Tú</span>
+      <div style="background:#111111; border:2px solid #111; border-radius:16px 16px 4px 16px; padding:12px 16px;">
+        ${imgSrc ? `<img src="${imgSrc}" style="max-width:180px; border-radius:8px; margin-bottom:8px; display:block; border:1px solid #333;" alt="adjunto"/>` : ''}
+        <p style="font-family:'DM Sans',sans-serif; font-size:14px; color:white; line-height:1.6; margin:0;">${formatText(content)}</p>
+      </div>`;
+  } else {
+    wrap.style.cssText = 'display:flex; flex-direction:column; align-items:flex-start; max-width:85%;';
+    wrap.innerHTML = `
+      <span style="font-family:'Syne',sans-serif; font-size:9px; font-weight:800; text-transform:uppercase; letter-spacing:0.12em; color:#e11d2e; margin-bottom:4px; padding:0 4px;">Agente GCLD</span>
+      <div style="background:white; border:2px solid #111; border-left:4px solid #e11d2e; border-radius:4px 16px 16px 16px; padding:12px 16px; box-shadow:3px 3px 0 #111;">
+        <p style="font-family:'DM Sans',sans-serif; font-size:14px; color:#111; line-height:1.6; margin:0;">${formatText(content)}</p>
+      </div>`;
   }
+
   msgs.appendChild(wrap);
   scrollBottom();
 }
@@ -551,16 +317,13 @@ function addMessage(role, content, imgSrc) {
 function addTyping() {
   const msgs = document.getElementById('messages');
   const wrap = document.createElement('div');
-  wrap.className = 'msg-wrap agent';
+  wrap.style.cssText = 'display:flex; flex-direction:column; align-items:flex-start; max-width:85%;';
   wrap.id = 'typing';
-  const label = document.createElement('div');
-  label.className = 'msg-label';
-  label.textContent = 'Agente';
-  const bubble = document.createElement('div');
-  bubble.className = 'bubble agent typing';
-  bubble.innerHTML = '<div class="dot"></div><div class="dot"></div><div class="dot"></div>';
-  wrap.appendChild(label);
-  wrap.appendChild(bubble);
+  wrap.innerHTML = `
+    <span style="font-family:'Syne',sans-serif; font-size:9px; font-weight:800; text-transform:uppercase; letter-spacing:0.12em; color:#e11d2e; margin-bottom:4px; padding:0 4px;">Agente GCLD</span>
+    <div style="background:white; border:2px solid #111; border-left:4px solid #e11d2e; border-radius:4px 16px 16px 16px; padding:14px 18px; box-shadow:3px 3px 0 #111; display:flex; gap:5px; align-items:center;">
+      <div class="dot"></div><div class="dot"></div><div class="dot"></div>
+    </div>`;
   msgs.appendChild(wrap);
   scrollBottom();
 }
@@ -573,19 +336,20 @@ function removeTyping() {
 function addJSONCard(jsonData) {
   const msgs = document.getElementById('messages');
   const wrap = document.createElement('div');
-  wrap.className = 'msg-wrap agent';
-  const card = document.createElement('div');
-  card.className = 'json-card';
+  wrap.style.cssText = 'display:flex; flex-direction:column; align-items:flex-start; max-width:92%;';
   const dataStr = encodeURIComponent(JSON.stringify(jsonData));
   const base = jsonData.type === 'sesion' ? 'sesión de levantamiento' : 'observaciones de campo';
-  card.innerHTML = `
-    <div>
-      <div class="json-card-label">¿Guardamos este registro?</div>
-      <div class="json-card-sub">Se guardará como ${base}</div>
-    </div>
-    <button class="btn-publish" onclick="publishToNotion('${dataStr}', this)">Guardar en Notion</button>
-  `;
-  wrap.appendChild(card);
+  wrap.innerHTML = `
+    <div style="background:white; border:2px solid #111; border-left:4px solid #e11d2e; padding:16px; box-shadow:3px 3px 0 #111; width:100%;">
+      <p style="font-family:'Syne',sans-serif; font-weight:800; font-size:17px; color:#111; line-height:1.2; margin:0 0 4px;">¿Guardamos este registro?</p>
+      <p style="font-family:'DM Sans',sans-serif; font-size:13px; color:#737373; margin:0 0 14px;">Se guardará como ${base}</p>
+      <button class="btn-save" onclick="publishToNotion('${dataStr}', this)"
+        style="background:#e11d2e; color:white; border:2px solid #111; font-family:'Syne',sans-serif; font-weight:800; font-size:13px; text-transform:uppercase; padding:10px 20px; box-shadow:3px 3px 0 #111; cursor:pointer; display:flex; align-items:center; gap:8px; transition:all .15s; letter-spacing:0.05em;"
+        onmouseover="this.style.background='#b91c1c';" onmouseout="this.style.background='#e11d2e';">
+        Guardar en Notion
+        <span class="material-symbols-outlined" style="font-size:18px; font-variation-settings:'FILL' 1;">arrow_forward</span>
+      </button>
+    </div>`;
   msgs.appendChild(wrap);
   scrollBottom();
 }
@@ -599,7 +363,9 @@ function showBienvenida() {
 async function publishToNotion(dataStr, btn) {
   const jsonData = JSON.parse(decodeURIComponent(dataStr));
   btn.disabled = true;
-  btn.textContent = 'Guardando...';
+  btn.style.background = '#737373';
+  btn.style.boxShadow = 'none';
+  btn.innerHTML = 'Guardando... <span class="material-symbols-outlined" style="font-size:18px;">progress_activity</span>';
   const webhook = jsonData.type === 'sesion' ? WEBHOOK_SESIONES : WEBHOOK_OBSERVACIONES;
   try {
     const resp = await fetch(webhook, {
@@ -609,19 +375,21 @@ async function publishToNotion(dataStr, btn) {
     });
     const text = await resp.text();
     if (text === 'Accepted' || resp.ok) {
-      btn.textContent = '✓ Guardado';
-      btn.style.background = '#1a3a2a';
-      btn.style.color = '#4ade80';
-      btn.style.borderColor = '#2a5a3a';
+      btn.style.background = '#16a34a';
+      btn.innerHTML = '✓ Guardado <span class="material-symbols-outlined" style="font-size:18px; font-variation-settings:\'FILL\' 1;">check_circle</span>';
       const base = jsonData.type === 'sesion' ? 'Sesiones de levantamiento' : 'Observaciones';
       addMessage('agent', `✅ ¡Registro guardado en Notion en la base de ${base}!`);
       showBienvenida();
     } else {
-      btn.textContent = 'Error — reintentar';
+      btn.style.background = '#e11d2e';
+      btn.style.boxShadow = '3px 3px 0 #111';
+      btn.innerHTML = 'Error — reintentar <span class="material-symbols-outlined" style="font-size:18px;">refresh</span>';
       btn.disabled = false;
     }
   } catch(e) {
-    btn.textContent = 'Error — reintentar';
+    btn.style.background = '#e11d2e';
+    btn.style.boxShadow = '3px 3px 0 #111';
+    btn.innerHTML = 'Error — reintentar <span class="material-symbols-outlined" style="font-size:18px;">refresh</span>';
     btn.disabled = false;
   }
 }
@@ -631,8 +399,7 @@ async function sendMessage() {
   const text = ta.value.trim();
   if ((!text && !attachedImage) || isLoading) return;
 
-  document.getElementById('quickPrompts').style.display = 'none';
-  addMessage('user', text, attachedImage?.preview);
+  addMessage('user', text || 'Analiza esta imagen', attachedImage?.preview);
 
   let apiMsg;
   if (attachedImage) {
@@ -666,13 +433,11 @@ async function sendMessage() {
     const data = await resp.json();
     const reply = data.content?.[0]?.text || 'Sin respuesta.';
     conversation.push({ role: 'assistant', content: reply });
-
     removeTyping();
     const clean = cleanText(reply);
     if (clean) addMessage('agent', clean);
     const json = extractJSON(reply);
     if (json) addJSONCard(json);
-
   } catch(e) {
     removeTyping();
     addMessage('agent', 'Error de conexión. Intenta de nuevo.');
